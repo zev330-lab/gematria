@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f8f6ef" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#201e20" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Explore Hebrew words letter by letter with five live gematria calculations.">
+  <title>Gematria · Hebrew letter calculator</title>
+  <link rel="icon" href="./assets/icon-192.png">
+  <link rel="apple-touch-icon" href="./assets/icon-192.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<header class="mast"><div class="wrap mast-inner">
+  <div class="brand"><img src="./assets/icon-192.png" alt="" width="34" height="34">Gematria <span lang="he" dir="rtl">גימטריה</span></div>
+  <button id="history-open" class="quiet"><i class="clock-icon" aria-hidden="true"></i>History</button>
+</div></header>
+<main class="wrap">
+  <div class="intro"><h1>Gematria <em>calculator</em></h1><p>Explore the numerical values of Hebrew letters, words, and phrases.</p></div>
+  <div class="workspace">
+    <div class="left column">
+      <section class="card composer" aria-labelledby="entry-title">
+        <div class="section-head"><h2 id="entry-title"><label for="phrase">Word or phrase</label></h2>
+          <button class="quiet keyboard-switch" id="keyboard-toggle" aria-expanded="false" aria-controls="keyboard"><i class="keyboard-icon" aria-hidden="true"></i>Keyboard</button>
+        </div>
+        <div class="field"><textarea id="phrase" rows="1" dir="auto" lang="he" placeholder="הקלידו כאן" spellcheck="false" autocapitalize="off" autocomplete="off">שלום</textarea><button id="clear" aria-label="Clear input" title="Clear input">×</button></div>
+        <div id="keyboard" class="keyboard" dir="rtl" aria-label="Hebrew keyboard" hidden></div>
+        <div class="examples"><span>Try a word</span><button lang="he" dir="rtl">אהבה</button><button lang="he" dir="rtl">אמת</button><button lang="he" dir="rtl">חי</button></div>
+        <div id="english" hidden></div>
+      </section>
+      <section class="card breakdown" aria-labelledby="break-title">
+        <div class="section-head"><h2 id="break-title">Letter breakdown</h2><span id="letter-count" class="count"></span></div>
+        <p class="sub" id="break-method"></p>
+        <div id="tiles" dir="rtl"></div>
+        <div id="equation" class="equation"></div>
+        <div id="word-totals" hidden></div>
+      </section>
+      <section class="card matches" aria-labelledby="match-title">
+        <div class="section-head"><h2 id="match-title">Same value</h2><span class="small-flower" aria-hidden="true">✧</span></div>
+        <p class="sub">Words and phrases with the same standard value.</p>
+        <div id="matches"></div>
+      </section>
+    </div>
+    <div class="right column">
+      <section class="result" aria-label="Selected result">
+        <img class="engraving" src="./assets/rosette.png" alt="">
+        <div class="result-inner"><div class="result-label"><i aria-hidden="true"></i><span id="result-label">Standard value</span></div>
+        <output id="total" aria-live="polite" aria-atomic="true">376</output><div class="result-foot"><span id="result-method">Mispar Hechrachi</span><button id="copy"><i class="copy-icon" aria-hidden="true"></i>Copy result</button></div></div>
+      </section>
+      <section class="card method-card" aria-labelledby="methods-title">
+        <div class="section-head"><h2 id="methods-title">Calculation methods</h2></div>
+        <p class="sub">Select a method to explore its letters.</p>
+        <div id="methods" role="group" aria-label="Calculation method"></div>
+      </section>
+    </div>
+  </div>
+  <p id="status" class="sr" role="status"></p>
+</main>
+<dialog id="history"><div class="section-head"><h2>Recent history</h2><button id="history-close" aria-label="Close history">×</button></div><div id="history-list"></div><button id="history-clear" class="quiet">Clear history</button></dialog>
+<noscript>This calculator needs JavaScript to update letter values.</noscript>
+</body></html>
