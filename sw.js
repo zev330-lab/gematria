@@ -1,7 +1,7 @@
 const scope = self.registration.scope;
 const prefix = 'gematria-shell-' + new URL(scope).pathname + '-';
-const cacheName = prefix + 'v1';
-const shell = ['index.html', 'styles.css', 'app.mjs', 'gematria.mjs', 'lexicon.mjs',
+const cacheName = prefix + 'v3';
+const shell = ['index.html', 'styles.css', 'app.mjs', 'gematria.mjs', 'lexicon.mjs', 'facts.mjs', 'fact-card.mjs',
   'manifest.webmanifest', 'assets/rosette.png', 'assets/icon-192.png', 'assets/icon-512.png'];
 const urls = new Set(shell.map(path => new URL(path, scope).href));
 const indexUrl = new URL('index.html', scope).href;

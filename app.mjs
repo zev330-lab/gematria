@@ -1,4 +1,5 @@
 import { alphabet, calculate, finals, methods } from './gematria.mjs';
+import { setupFactCard } from './fact-card.mjs';
 import { lexicon } from './lexicon.mjs';
 
 const $ = id => document.getElementById(id);
@@ -223,4 +224,9 @@ $('copy').addEventListener('click', async () => {
 });
 result = calculate(input.value);
 render();
+setupFactCard(value => {
+  replaceInput(value);
+  input.focus({ preventScroll: true });
+  input.scrollIntoView({ block: 'center' });
+});
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});

@@ -13,7 +13,7 @@ process.env.TMPDIR = scratch;
 const playwrightPath = join(homedir(), 'dev/build-kids-apps/node_modules/playwright/index.mjs');
 const executablePath = join(homedir(), 'Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell');
 const shell = new Set(['index.html', 'manifest.webmanifest', 'styles.css', 'app.mjs', 'gematria.mjs',
-  'lexicon.mjs', 'sw.js', 'assets/icon-192.png', 'assets/icon-512.png', 'assets/rosette.png']);
+  'lexicon.mjs', 'facts.mjs', 'fact-card.mjs', 'sw.js', 'assets/icon-192.png', 'assets/icon-512.png', 'assets/rosette.png']);
 const types = { '.html':'text/html', '.css':'text/css', '.mjs':'text/javascript', '.js':'text/javascript',
   '.png':'image/png', '.webmanifest':'application/manifest+json' };
 const server = createServer(async (req, res) => {
@@ -82,6 +82,71 @@ try {
   assert.equal(await input.inputValue(), 'שלום');
   await page.locator('#keyboard-toggle').click();
 
+  const random = page.getByRole('button', {name:'Random', exact:true});
+  const card = page.getByRole('dialog', {name:/./}).filter({has:page.locator('#fact-title')});
+  const title = page.locator('#fact-title');
+  await random.click();
+  await card.waitFor();
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'fact-title');
+  const seen = new Set([await title.innerText()]);
+  for (let i = 0; i < 6; i++) {
+    await card.getByRole('button', {name:'Next', exact:true}).click();
+    const name = await title.innerText();
+    assert.ok(!seen.has(name));
+    seen.add(name);
+    assert.equal(await page.locator('#fact-status').textContent(), name);
+  }
+  await page.keyboard.press('Escape');
+  assert.ok(!(await card.isVisible()));
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'fact-open');
+  await page.goto(url + '#fact=wine-secret');
+  await card.getByRole('heading', {name:'Wine and a secret'}).waitFor();
+  assert.equal(await card.locator('.fact-proof li').count(), 2);
+  await page.screenshot({path:join(screens, 'fact-other.png')});
+  await card.getByRole('button', {name:'Close fact'}).click();
+  assert.ok(!(await card.isVisible()));
+
+  await page.goto(url + '#fact=genesis-pi');
+  await card.getByRole('heading', {name:'Pi in Genesis'}).waitFor();
+  assert.match(await card.innerText(), /28 letters · 7 words/);
+  assert.match(await card.innerText(), /3\.14155/);
+  assert.deepEqual(await card.locator('mark').allTextContents(), ['3.1415', '3.1415']);
+  await page.screenshot({path:join(screens, 'fact-pi.png')});
+  await card.getByText('Letter-by-letter proof', {exact:true}).click();
+  assert.equal(await card.locator('.proof-letter').count(), 28);
+  for (const width of [320, 393, 430, 768]) {
+    await page.setViewportSize({width, height:852});
+    assert.ok(await page.locator('#fact-body').evaluate(el => el.scrollWidth <= el.clientWidth),
+      'fact body overflow at ' + width);
+    assert.ok(await card.evaluate(el => el.scrollWidth <= el.clientWidth), 'dialog overflow at ' + width);
+  }
+  await card.getByRole('button', {name:'Load into calculator'}).click();
+  assert.ok(!(await card.isVisible()));
+  assert.equal(await input.inputValue(), 'בראשית ברא אלהים את השמים ואת הארץ');
+  assert.equal(await page.locator('#total').innerText(), '2701');
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'phrase');
+  await input.fill('שלום');
+  await input.blur();
+
+  await page.setViewportSize({width:393, height:852});
+  await page.goto(url + '#fact=genesis-pi-digits');
+  await card.getByRole('heading', {name:"Pi's digits and the first verse"}).waitFor();
+  assert.ok(await card.getByRole('heading', {name:'Two ways to split the first 628 decimals'}).isVisible());
+  const digits = card.getByRole('region', {name:'First 628 decimal digits of pi'});
+  const split = card.getByLabel('Split order');
+  for (const [index, ranges, lengths] of [
+    [0, ['Digits 1–17 sum to 82', 'Digits 18–628 sum to 2701'], [17, 611]],
+    [1, ['Digits 1–611 sum to 2701', 'Digits 612–628 sum to 82'], [611, 17]],
+  ]) {
+    await split.selectOption({index});
+    for (const range of ranges) assert.ok(await card.getByText(range, {exact:true}).isVisible());
+    assert.deepEqual((await digits.locator('span').allTextContents()).map(text => text.length), lengths);
+    assert.ok(await digits.evaluate(el => el.scrollWidth <= el.clientWidth));
+    assert.ok(await page.locator('#fact-body').evaluate(el => el.scrollWidth <= el.clientWidth));
+    if (index === 0) await page.screenshot({path:join(screens, 'fact-pi-digits.png')});
+  }
+  await card.getByRole('button', {name:'Close fact'}).click();
+
   for (const width of [320, 430, 768, 1280]) {
     await page.setViewportSize({width, height:852});
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'overflow at ' + width);
@@ -91,12 +156,15 @@ try {
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
   await context.setOffline(true);
   await page.reload();
+  await random.click();
+  await card.waitFor();
+  await card.getByRole('button', {name:'Close fact'}).click();
   await input.fill('שָׁלוֹם');
   assert.equal(await page.locator('#total').innerText(), '376');
   await input.fill('shalom');
   assert.match(await page.locator('#english').innerText(), /English ordinal · 68/);
   assert.deepEqual(errors, []);
-  console.log('Passed mobile values, selection, matching, keyboard, history, layout and offline reload. Screenshots in docs/screens/.');
+  console.log('Passed mobile values, selection, matching, keyboard, history, fact shuffle, deep links, calculator loading, layout and offline reload. Screenshots in docs/screens/.');
 } finally {
   try { await browser?.close(); }
   finally {

@@ -19,7 +19,9 @@
   <button id="history-open" class="quiet"><i class="clock-icon" aria-hidden="true"></i>History</button>
 </div></header>
 <main class="wrap">
-  <div class="intro"><h1>Gematria <em>calculator</em></h1><p>Explore the numerical values of Hebrew letters, words, and phrases.</p></div>
+  <div class="intro fact-intro"><div><h1>Gematria <em>calculator</em></h1><p>Explore the numerical values of Hebrew letters, words, and phrases.</p></div>
+    <button id="fact-open" aria-haspopup="dialog" aria-controls="fact-card"><span aria-hidden="true">⚄</span> Random</button>
+  </div>
   <div class="workspace">
     <div class="left column">
       <section class="card composer" aria-labelledby="entry-title">
@@ -59,6 +61,13 @@
   </div>
   <p id="status" class="sr" role="status"></p>
 </main>
+<dialog id="fact-card" aria-labelledby="fact-title">
+  <header class="fact-header"><div><small id="fact-kind">Random fact</small><h2 id="fact-title" tabindex="-1" autofocus></h2></div>
+    <button id="fact-close" aria-label="Close fact">×</button></header>
+  <div id="fact-body" tabindex="0" role="region" aria-label="Fact and proof"></div>
+  <footer class="fact-actions"><button id="fact-load">Load into calculator</button><button id="fact-next">Next <span aria-hidden="true">→</span></button></footer>
+  <span id="fact-status" class="sr" role="status" aria-live="polite" aria-atomic="true"></span>
+</dialog>
 <dialog id="history"><div class="section-head"><h2>Recent history</h2><button id="history-close" aria-label="Close history">×</button></div><div id="history-list"></div><button id="history-clear" class="quiet">Clear history</button></dialog>
 <noscript>This calculator needs JavaScript to update letter values.</noscript>
 </body></html>
