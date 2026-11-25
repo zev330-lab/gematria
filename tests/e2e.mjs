@@ -1,4 +1,4 @@
-// Run explicitly with node tests/e2e.mjs. Only the app shell is served.
+// Run explicitly with node tests/e2e.mjs. Serve the app shell and generated lookup shards.
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { mkdtemp, mkdir, readFile, rm } from 'node:fs/promises';
@@ -12,14 +12,15 @@ const scratch = await mkdtemp('/tmp/gematria-e2e-');
 process.env.TMPDIR = scratch;
 const playwrightPath = join(homedir(), 'dev/build-kids-apps/node_modules/playwright/index.mjs');
 const executablePath = join(homedir(), 'Library/Caches/ms-playwright/chromium_headless_shell-1248/chrome-headless-shell-mac-arm64/chrome-headless-shell');
-const shell = new Set(['index.html', 'manifest.webmanifest', 'styles.css', 'app.mjs', 'gematria.mjs',
+const shell = new Set(['index.html', 'manifest.webmanifest', 'styles.css', 'app.mjs', 'gematria.mjs', 'lookup.mjs',
   'lexicon.mjs', 'facts.mjs', 'fact-card.mjs', 'sw.js', 'assets/icon-192.png', 'assets/icon-512.png', 'assets/rosette.png']);
 const types = { '.html':'text/html', '.css':'text/css', '.mjs':'text/javascript', '.js':'text/javascript',
-  '.png':'image/png', '.webmanifest':'application/manifest+json' };
+  '.json':'application/json', '.png':'image/png', '.webmanifest':'application/manifest+json' };
 const server = createServer(async (req, res) => {
   const path = new URL(req.url, 'http://localhost').pathname;
   const file = path.slice('/gematria/'.length) || 'index.html';
-  if (!path.startsWith('/gematria/') || !shell.has(file)) {
+  const shard = /^data\/words\/(?:manifest|(?:rows|standard|gadol|katan|ordinal|atbash)-\d+)\.json$/.test(file);
+  if (!path.startsWith('/gematria/') || !(shell.has(file) || shard)) {
     res.writeHead(404).end();
     return;
   }
@@ -44,6 +45,10 @@ try {
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
+  const dataRequests = [];
+  context.on('request', req => {
+    if (req.url().includes('/data/words/')) dataRequests.push(req.url());
+  });
   await page.goto(url);
   const input = page.locator('#phrase');
   await page.locator('#clear').click();
@@ -147,6 +152,40 @@ try {
   }
   await card.getByRole('button', {name:'Close fact'}).click();
 
+  assert.deepEqual(dataRequests, [], 'calculator and facts should never request the word index');
+  await page.getByRole('button', {name:'Find words', exact:true}).click();
+  const finder = page.getByRole('dialog', {name:'Find words by number'});
+  const number = finder.getByLabel('Number', {exact:true});
+  const matches = finder.locator('#find-results');
+  await number.fill('26');
+  await matches.getByText('יהוה', {exact:true}).waitFor();
+  assert.equal(await matches.locator('bdi').first().innerText(), 'יהוה');
+  assert.match(await finder.locator('#find-count').innerText(), /42 matches/);
+  assert.equal(await matches.locator('li').count(), 24);
+  await number.blur();
+  await page.screenshot({path:join(screens, 'find-26.png')});
+  await finder.getByRole('button', {name:'Show more'}).click();
+  await matches.locator('li').nth(41).waitFor();
+  await matches.getByText('יהוה', {exact:true}).click();
+  assert.equal(await input.inputValue(), 'יהוה');
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'phrase');
+  await input.fill('70');
+  await page.getByRole('button', {name:'Find words = 70', exact:true}).click();
+  await matches.getByText('יין', {exact:true}).waitFor();
+  assert.ok(await matches.getByText('סוד', {exact:true}).isVisible());
+  await page.goto(url + '#find=936&m=gadol');
+  await matches.getByText('שלום', {exact:true}).waitFor();
+  assert.equal(await finder.getByLabel('Method').inputValue(), 'gadol');
+  await finder.getByLabel('Method').selectOption('standard');
+  assert.equal(await page.evaluate(() => location.hash), '#find=936');
+  await page.goto(url + '#find=376');
+  await finder.getByText('81 matches', {exact:true}).waitFor();
+  await matches.getByText('שלום', {exact:true}).waitFor();
+  await page.screenshot({path:join(screens, 'find-376.png')});
+  await matches.getByText('שלום', {exact:true}).click();
+  assert.equal(await input.inputValue(), 'שלום');
+  await input.blur();
+
   for (const width of [320, 430, 768, 1280]) {
     await page.setViewportSize({width, height:852});
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'overflow at ' + width);
@@ -163,8 +202,10 @@ try {
   assert.equal(await page.locator('#total').innerText(), '376');
   await input.fill('shalom');
   assert.match(await page.locator('#english').innerText(), /English ordinal · 68/);
+  await page.goto(url + '#find=26');
+  await matches.getByText('יהוה', {exact:true}).waitFor();
   assert.deepEqual(errors, []);
-  console.log('Passed mobile values, selection, matching, keyboard, history, fact shuffle, deep links, calculator loading, layout and offline reload. Screenshots in docs/screens/.');
+  console.log('Passed mobile values, selection, matching, keyboard, history, fact shuffle, deep links, calculator loading, layout, reverse lookup, paging and offline reload. Screenshots in docs/screens/.');
 } finally {
   try { await browser?.close(); }
   finally {

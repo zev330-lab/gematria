@@ -20,7 +20,8 @@
 </div></header>
 <main class="wrap">
   <div class="intro fact-intro"><div><h1>Gematria <em>calculator</em></h1><p>Explore the numerical values of Hebrew letters, words, and phrases.</p></div>
-    <button id="fact-open" aria-haspopup="dialog" aria-controls="fact-card"><span aria-hidden="true">⚄</span> Random</button>
+    <div class="intro-actions"><button id="find-open" aria-haspopup="dialog" aria-controls="find-dialog">Find words</button>
+    <button id="fact-open" aria-haspopup="dialog" aria-controls="fact-card"><span aria-hidden="true">⚄</span> Random</button></div>
   </div>
   <div class="workspace">
     <div class="left column">
@@ -29,6 +30,7 @@
           <button class="quiet keyboard-switch" id="keyboard-toggle" aria-expanded="false" aria-controls="keyboard"><i class="keyboard-icon" aria-hidden="true"></i>Keyboard</button>
         </div>
         <div class="field"><textarea id="phrase" rows="1" dir="auto" lang="he" placeholder="הקלידו כאן" spellcheck="false" autocapitalize="off" autocomplete="off">שלום</textarea><button id="clear" aria-label="Clear input" title="Clear input">×</button></div>
+        <button id="find-chip" aria-haspopup="dialog" aria-controls="find-dialog" hidden></button>
         <div id="keyboard" class="keyboard" dir="rtl" aria-label="Hebrew keyboard" hidden></div>
         <div class="examples"><span>Try a word</span><button lang="he" dir="rtl">אהבה</button><button lang="he" dir="rtl">אמת</button><button lang="he" dir="rtl">חי</button></div>
         <div id="english" hidden></div>
@@ -61,6 +63,19 @@
   </div>
   <p id="status" class="sr" role="status"></p>
 </main>
+<dialog id="find-dialog" aria-labelledby="find-title">
+  <header class="find-header"><h2 id="find-title">Find words by number</h2><button id="find-close" aria-label="Close lookup">×</button></header>
+  <div class="find-fields">
+    <label>Number<input id="find-number" type="text" inputmode="numeric" autocomplete="off" placeholder="26" autofocus></label>
+    <label>Method<select id="find-method"><option value="standard">Standard</option><option value="gadol">Gadol</option><option value="katan">Katan</option><option value="ordinal">Ordinal</option><option value="atbash">Atbash</option></select></label>
+  </div>
+  <p id="find-count" role="status" aria-atomic="true"></p>
+  <div id="find-scroll" role="region" aria-label="Matching words" tabindex="0">
+    <ul id="find-results"></ul><button id="find-more" hidden>Show more</button>
+    <button id="find-retry" hidden>Try again</button>
+  </div>
+  <footer class="find-credit">Word data from Open Scriptures Hebrew Bible Project (CC BY 4.0). WLC text is public domain.</footer>
+</dialog>
 <dialog id="fact-card" aria-labelledby="fact-title">
   <header class="fact-header"><div><small id="fact-kind">Random fact</small><h2 id="fact-title" tabindex="-1" autofocus></h2></div>
     <button id="fact-close" aria-label="Close fact">×</button></header>

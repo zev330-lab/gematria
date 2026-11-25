@@ -1,4 +1,5 @@
 import { alphabet, calculate, finals, methods } from './gematria.mjs';
+import { setupLookup } from './lookup.mjs';
 import { setupFactCard } from './fact-card.mjs';
 import { lexicon } from './lexicon.mjs';
 
@@ -99,6 +100,9 @@ function render() {
   $('result-method').textContent = method.name;
   $('result-label').textContent = method.label;
   $('clear').hidden = !input.value;
+  const chip = $('find-chip');
+  chip.hidden = !/^\d+$/.test(input.value);
+  if (!chip.hidden) chip.textContent = 'Find words = ' + input.value;
   $('letter-count').textContent = result.letters.length + (result.letters.length === 1 ? ' letter' : ' letters');
   $('break-method').textContent = method.name + ' · ' + method.label;
   for (const row of methodRows) {
@@ -224,9 +228,11 @@ $('copy').addEventListener('click', async () => {
 });
 result = calculate(input.value);
 render();
-setupFactCard(value => {
+function loadPhrase(value) {
   replaceInput(value);
   input.focus({ preventScroll: true });
   input.scrollIntoView({ block: 'center' });
-});
+}
+setupFactCard(loadPhrase);
+setupLookup(loadPhrase);
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
