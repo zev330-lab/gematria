@@ -18,9 +18,9 @@ Recent history stays on the device under `gematria-history` and can be cleared f
 
 Press **Random** for one of 28 fact cards. Each card shows the Hebrew, the equation, the letter values, and the story behind the observation. **Next** deals every card once before reshuffling, including across dialog visits in the same page session. **Load into calculator** puts the card’s main word or verse in the input. Close the card with its close button or Escape.
 
-The address bar links to the current card. Open [Pi in Genesis](https://zev330-lab.github.io/gematria/#fact=genesis-pi) for the featured comparison. Expand the letter-by-letter proof to inspect all seven words, or the John 1:1 section for the Greek companion calculation and its rounding. The other featured card, [Pi's digits and the first verse](https://zev330-lab.github.io/gematria/#fact=genesis-pi-digits), lets you inspect both splits of the first 628 decimals of pi. All arithmetic runs locally. Source links open in a new tab only when selected.
+The address bar links to the current card. Open [Pi in Genesis](https://zev330-lab.github.io/gematria/#fact=genesis-pi) for the featured comparison. Expand the letter-by-letter proof to inspect all seven words. The other featured card, [Pi's digits and the first verse](https://zev330-lab.github.io/gematria/#fact=genesis-pi-digits), lets you inspect both splits of the first 628 decimals of pi. All arithmetic runs locally. Source links open in a new tab only when selected.
 
-`facts.mjs` contains the claims, shuffle bag, and verse calculations. Hebrew values come from the same `calculate()` function as the calculator. Verse products and division use BigInt, and the Greek isopsephy table is local to the fact deck. The service worker includes the deck and card UI for offline use.
+`facts.mjs` contains the claims, shuffle bag, and verse calculations. Hebrew values come from the same `calculate()` function as the calculator. Verse products and division use BigInt. The service worker includes the deck and card UI for offline use.
 
 ## Run locally
 

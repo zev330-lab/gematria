@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculate } from '../gematria.mjs';
-import { createDeck, evaluateFact, facts, genesis, johnRatio, piDecimals } from '../facts.mjs';
+import { createDeck, evaluateFact, facts, genesis, piDecimals } from '../facts.mjs';
 
 // Expected values are audit fixtures only. Every term, including each side of
 // a compound equation, must independently evaluate to the stated result.
@@ -94,16 +94,6 @@ test('the Torah and Genesis values determine both splits, the shifted window and
   assert.equal(d.verse.letters.length, d.byWordCount.sum);
   assert.equal(d.squareSum, 2701);
   assert.equal(Array.from(piDecimals.slice(0, 82), Number).reduce((a, b) => a + b * b, 0), d.squareSum);
-});
-
-test('John uses Greek isopsephy with an explicit iota subscript', () => {
-  const result = johnRatio();
-  assert.equal(result.letters, 52);
-  assert.equal(result.words, 17);
-  assert.equal(result.total, 3627);
-  assert.equal(result.exponent, 40);
-  assert.equal(result.mantissa, '2.7183128121964');
-  assert.equal(Number(result.mantissa).toPrecision(5), Math.E.toPrecision(5));
 });
 
 test('shuffle bags exhaust every card and avoid adjacent repeats across refills', () => {

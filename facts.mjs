@@ -18,7 +18,6 @@ export const piDecimals =
   '8301194912983367336244065664308602139494639522473719070217986094370277' +
   '0539217176293176752384674818467669405132000568127145263560827785771342' +
   '7577896091736371787214684409012249534301465495853710507922796892589235';
-export const john = 'εν αρχηι ην ο λογος και ο λογος ην προς τον θεον και θεος ην ο λογος';
 
 // Numbers in expressions are operands from the teaching. Hebrew totals come from calculate().
 export const facts = [
@@ -113,9 +112,6 @@ function piDigitSums(verse, torah) {
     squareSum: sumOf(squaredDigits.map(digit => digit ** 2)) };
 }
 
-const greek = { α:1, β:2, γ:3, δ:4, ε:5, ζ:7, η:8, θ:9, ι:10, κ:20, λ:30, μ:40,
-  ν:50, ξ:60, ο:70, π:80, ρ:100, σ:200, ς:200, τ:300, υ:400, φ:500, χ:600, ψ:700, ω:800 };
-
 function verseRatio(letterValues, wordValues) {
   const letters = letterValues.length;
   const words = wordValues.length;
@@ -129,11 +125,6 @@ function verseRatio(letterValues, wordValues) {
   return { letters, words, letterProduct, wordProduct, wordValues, total: sumOf(wordValues),
     decimal: integer + '.' + fraction, exponent: integer.length - 1,
     mantissa: digits[0] + '.' + digits.slice(1, 14) };
-}
-
-export function johnRatio() {
-  const words = john.split(' ').map(word => [...word].map(char => greek[char]));
-  return verseRatio(words.flat(), words.map(sumOf));
 }
 
 // Each equation term carries its typeset expression and its independently evaluated value.

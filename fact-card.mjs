@@ -1,4 +1,4 @@
-import { createDeck, evaluateFact, facts, johnRatio } from './facts.mjs';
+import { createDeck, evaluateFact, facts } from './facts.mjs';
 
 const byId = id => document.getElementById(id);
 function element(tag, text, css) {
@@ -97,7 +97,6 @@ function piBlock(fact, pi) {
 
 function piProof(pi, proof) {
   const error = (Number(pi.mantissa) - Math.PI) / Math.PI;
-  const greek = johnRatio();
   const formula = element('p', 'Multiply the letter count by the product of the letter values. Divide by the word count times the product of the word values.');
   const steps = element('dl', undefined, 'pi-steps');
   const [integer, fraction] = pi.decimal.split('.');
@@ -109,13 +108,8 @@ function piProof(pi, proof) {
   ]) steps.append(element('dt', label), element('dd', value));
   const accuracy = element('p', 'After scaling, the first five significant digits match. The verse figure is about ' +
     (Math.abs(error) * 100).toFixed(4) + '% below π (relative error ' + (error * 1e5).toFixed(3) + ' × 10⁻⁵).');
-  const companion = element('p', 'Counting the iota subscript as a letter gives ' + greek.letters + ' letters and ' +
-    greek.words + ' words, with a value sum of ' + greek.total + '. The same formula gives ' + greek.mantissa.slice(0, 9) +
-    '… × 10');
-  companion.append(element('sup', greek.exponent), '. Compare e = ' + String(Math.E).slice(0, 9) +
-    '…. Both coefficients round to ' + Math.E.toPrecision(5) + ' at five significant figures.');
   return [element('h3', 'How the ratio is calculated'), formula, steps, accuracy,
-    details('Letter-by-letter proof', wordProof(proof)), details('The companion claim in John 1:1', companion)];
+    details('Letter-by-letter proof', wordProof(proof))];
 }
 
 function digitSummary({ verse, torah, longFirst, shortFirst }) {
